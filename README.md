@@ -1,3 +1,10 @@
+
+# 1. My Changes
+* add general linear least square 
+* maybe add SVD fitting in the future
+* maybe add regularized least square in the future
+
+---
 # GRANSAC: Multi-threaded generic RANSAC implemetation
 
 This is a header-only, multi-threaded implementation of the [RANSAC algorithm](https://en.wikipedia.org/wiki/RANSAC),
