@@ -1,6 +1,18 @@
+# Table of Content
+- [Table of Content](#table-of-content)
+- [1. My Changes](#1-my-changes)
+- [2. How to Use](#2-how-to-use)
+- [README from original repository](#readme-from-original-repository)
+    - [GRANSAC: Multi-threaded generic RANSAC implemetation](#gransac-multi-threaded-generic-ransac-implemetation)
+    - [Dependencies](#dependencies)
+    - [Usage](#usage)
+    - [Example: Line Fitting](#example-line-fitting)
+    - [License](#license)
+    - [Contact](#contact)
 
 # 1. My Changes
-* add general linear least square 
+* add quadratic model
+* add general linear least square model, performance of distance calculation could be a problem
 * maybe add SVD fitting in the future
 * maybe add regularized least square in the future
 
