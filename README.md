@@ -4,8 +4,16 @@
 * maybe add SVD fitting in the future
 * maybe add regularized least square in the future
 
+# 2. How to Use
+```bash
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
 ---
-# GRANSAC: Multi-threaded generic RANSAC implemetation
+# README from original repository
+## GRANSAC: Multi-threaded generic RANSAC implemetation
 
 This is a header-only, multi-threaded implementation of the [RANSAC algorithm](https://en.wikipedia.org/wiki/RANSAC),
 used widely in computer vision.
