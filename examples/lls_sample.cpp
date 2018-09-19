@@ -61,11 +61,11 @@ int main(int argc, char *argv[])
         cv::Point Pt(floor(x), floor(y));
         cv::circle(Canvas, Pt, floor(Side / 100) + 3, cv::Scalar(0, 0, 0), 2, cv::LINE_AA);
 
-        std::shared_ptr<GRANSAC::AbstractParameter> CandPt = std::make_shared<Point2D>(Pt.x, Pt.y);
+        std::shared_ptr<GRANSAC::AbstractParameter> CandPt = std::make_shared<GRANSAC::Point2D>(Pt.x, Pt.y);
         CandPoints.push_back(CandPt);
     }
 
-    GRANSAC::RANSAC<Line2DModel, 2> Estimator;
+    GRANSAC::RANSAC<GRANSAC::Line2DModel, 2> Estimator;
     Estimator.Initialize(20, 100); // Threshold, iterations
     int start = cv::getTickCount();
     Estimator.Estimate(CandPoints);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     {
         for (auto &Inlier : BestInliers)
         {
-            auto RPt = std::dynamic_pointer_cast<Point2D>(Inlier);
+            auto RPt = std::dynamic_pointer_cast<GRANSAC::Point2D>(Inlier);
             cv::Point Pt(floor(RPt->m_Point2D[0]), floor(RPt->m_Point2D[1]));
             cv::circle(Canvas, Pt, floor(Side / 100), cv::Scalar(0, 255, 0), -1, cv::LINE_AA);
         }
@@ -86,8 +86,8 @@ int main(int argc, char *argv[])
     auto BestLine = Estimator.GetBestModel();
     if (BestLine)
     {
-        auto BestLinePt1 = std::dynamic_pointer_cast<Point2D>(BestLine->GetModelParams()[0]);
-        auto BestLinePt2 = std::dynamic_pointer_cast<Point2D>(BestLine->GetModelParams()[1]);
+        auto BestLinePt1 = std::dynamic_pointer_cast<GRANSAC::Point2D>(BestLine->GetModelParams()[0]);
+        auto BestLinePt2 = std::dynamic_pointer_cast<GRANSAC::Point2D>(BestLine->GetModelParams()[1]);
         if (BestLinePt1 && BestLinePt2)
         {
             cv::Point Pt1(BestLinePt1->m_Point2D[0], BestLinePt1->m_Point2D[1]);

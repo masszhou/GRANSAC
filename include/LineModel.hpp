@@ -1,21 +1,11 @@
 #pragma once
 
 #include "AbstractModel.hpp"
+#include "basic_types.hpp"
 
-typedef std::array<GRANSAC::VPFloat, 2> Vector2VP;
 
-class Point2D
-	: public GRANSAC::AbstractParameter
+namespace GRANSAC
 {
-public:
-	Point2D(GRANSAC::VPFloat x, GRANSAC::VPFloat y)
-	{
-		m_Point2D[0] = x;
-		m_Point2D[1] = y;
-	};
-
-	Vector2VP m_Point2D;
-};
 
 class Line2DModel
 	: public GRANSAC::AbstractModel<2>
@@ -101,3 +91,4 @@ public:
 	};
 };
 
+}
