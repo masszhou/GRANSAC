@@ -106,9 +106,28 @@ public:
 		m_a1 = coeff[1];
 		m_a2 = coeff[2];
 
-		//size=400x400, grid=40x40,
-		//x=[5, 15, 20, 25, 30, 45, ..., 355, 365, 375, 385, 395]
-		//y=[5, 15, 20, 25, 30, 45, ..., 355, 365, 375, 385, 395]
+		//if size=400x400, grid=40x40,
+		vector<int> row_init(40, 0);
+		for (int i = 0; i < 40; i++)
+			m_dist_lookup.push_back(row_init);
+		
+		float y_0 = m_a0;
+		for (int i=1; i<=40; i++){
+			int y_0_ind = floor(y_0 / 400) + 1;
+
+			float x = float(i);
+			float y_1 = m_a0 + m_a1 * x + m_a2 * x * x;
+			int y_1_ind = floor(y / 400);
+
+			if (y_0 <= 400 && y_1 >=0){
+				if (y_0 > y_1){
+					for (int j=y_1; j<y_0; j++){
+						m_dist_lookup[j][i] = 1;
+					}
+				}
+			}
+			y_0 = y_1;
+		}
 		//if curve go through cell, fill cell = 1, otherwise = 0
 
 	};
