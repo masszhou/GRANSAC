@@ -29,7 +29,7 @@ protected:
 	// build a lookup table to calculate point to curve distance
 	// e.g. target fitting is points in a 400x400 image
 	// then grid of lookup table is 40x40 cell, each cell is 10x10 pixel
-	int m_grid_num_x;
+	int m_grid_size; // cell size of grid, e.g. m_grid_size = 10 -> each cell is 10x10 pixel
 	std::vector<std::vector<float> > m_occupied_list;
 
 	virtual VPFloat ComputeDistanceMeasure(std::shared_ptr<AbstractParameter> Param) override
@@ -54,12 +54,14 @@ protected:
 	};
 
 public:
-	QuadraticModel(const std::vector<std::shared_ptr<AbstractParameter>> &InputParams)
+	QuadraticModel(const std::vector<std::shared_ptr<AbstractParameter>> &input_params, 
+	               const std::vector<float>& addtional_params)
 	{
-		Initialize(InputParams);
+		Initialize(input_params, addtional_params);
 	};
 
-	virtual void Initialize(const std::vector<std::shared_ptr<AbstractParameter>> &InputParams) override
+	virtual void Initialize(const std::vector<std::shared_ptr<AbstractParameter>> &InputParams, 
+	                        const std::vector<float>& addtional_params) override
 	{
 		// if (InputParams.size() != 2)
 		// 	throw std::runtime_error("QuadraticModel - Number of input parameters does not match minimum number required for this model.");

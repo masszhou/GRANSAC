@@ -32,6 +32,8 @@ private:
 
 	std::vector<std::mt19937> m_RandEngines; // Mersenne twister high quality RNG that support *OpenMP* multi-threading
 
+	std::vector<float> m_additional_params;
+
 public:
 	RANSAC(void)
 	{
@@ -58,10 +60,12 @@ public:
 		m_BestModelScore = 0.0;
 	};
 
-	void Initialize(VPFloat Threshold, int MaxIterations = 1000)
+	void Initialize(VPFloat Threshold, int MaxIterations = 1000, 
+	                const std::vector<float>& addtional_params = std::vector<float>())
 	{
 		m_Threshold = Threshold;
 		m_MaxIterations = MaxIterations;
+		m_additional_params = m_additional_params;
 	};
 
 	std::shared_ptr<T> GetBestModel(void) { return m_BestModel; };
@@ -97,7 +101,7 @@ public:
 			std::copy(RemainderSamples.begin(), RemainderSamples.begin() + t_NumParams, RandomSamples.begin());
 			//RemainderSamples.erase(RemainderSamples.begin(), RemainderSamples.begin() + t_NumParams); // Remove the model data points from consideration. 2018: Turns out this is not a good idea
 
-			std::shared_ptr<T> RandomModel = std::make_shared<T>(RandomSamples);
+			std::shared_ptr<T> RandomModel = std::make_shared<T>(RandomSamples, m_additional_params);
 
 			// Check if the sampled model is the best so far
 			std::pair<VPFloat, std::vector<std::shared_ptr<AbstractParameter>>> EvalPair = RandomModel->Evaluate(RemainderSamples, m_Threshold);
