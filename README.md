@@ -11,8 +11,8 @@
     - [Contact](#contact)
 
 # 1. My Changes
-* add quadratic model
-* add general linear least square model, performance of distance calculation could be a problem
+* add quadratic model (done)
+* add general linear least square model, performance of distance calculation could be a problem (working on)
 * maybe add SVD fitting in the future
 * maybe add regularized least square in the future
 
