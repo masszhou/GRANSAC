@@ -12,6 +12,7 @@
 
 # 1. My Changes
 * add quadratic model (done)
+* dependents on eigen3 for fitting Ax=b
 * add general linear least square model, performance of distance calculation could be a problem (working on)
 * maybe add SVD fitting in the future
 * maybe add regularized least square in the future
