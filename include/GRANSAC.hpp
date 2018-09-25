@@ -65,7 +65,7 @@ public:
 	{
 		m_Threshold = Threshold;
 		m_MaxIterations = MaxIterations;
-		m_additional_params = m_additional_params;
+		m_additional_params = addtional_params;
 	};
 
 	std::shared_ptr<T> GetBestModel(void) { return m_BestModel; };

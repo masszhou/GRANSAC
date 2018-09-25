@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    int Side = 400;
+    int Side = 1000;
     int nPoints = 100;
     if (argc == 3)
     {
@@ -60,8 +60,9 @@ int main(int argc, char *argv[])
         }
     }
 
+    vector<float> additional_params{float(Side), float(Side), float(Side/10), float(Side/10)};
     GRANSAC::RANSAC<GRANSAC::QuadraticModel, 3> Estimator;
-    Estimator.Initialize(1, 100); // Threshold, iterations, the threshold is p-1 distance on grid, 1 means 1 grid cell distance
+    Estimator.Initialize(1, 100, additional_params); // Threshold, iterations, the threshold is p-1 distance on grid, 1 means 1 grid cell distance
     int start = cv::getTickCount();
     Estimator.Estimate(CandPoints);
     int end = cv::getTickCount();
