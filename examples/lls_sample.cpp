@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    int Side = 1000;
-    int nPoints = 100;
+    int Side = 400;
+    int nPoints = 50;
     if (argc == 3)
     {
         Side = std::atoi(argv[1]);
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
         if (x<=Side && x > 0 && y<=Side && y > 0){
             cv::Point Pt(floor(x), floor(y));
-            cv::circle(Canvas, Pt, floor(Side / 100) + 3, cv::Scalar(0, 0, 0), 2, cv::LINE_AA);
+            cv::circle(Canvas, Pt, floor(Side / 100) + 2, cv::Scalar(0, 0, 0), 2, cv::LINE_AA);
 
             std::shared_ptr<GRANSAC::AbstractParameter> CandPt = std::make_shared<GRANSAC::Point2D>(Pt.x, Pt.y);
             CandPoints.push_back(CandPt);
@@ -60,13 +60,34 @@ int main(int argc, char *argv[])
         }
     }
 
+    //set grid
     vector<float> additional_params{float(Side), float(Side), float(Side/10), float(Side/10)};
+    //draw grid
+    cv::Mat overlay;
+    double alpha = 0.3;
+    Canvas.copyTo(overlay);
+    for (int i=0; i < Side/10; i++){
+        cv::Point pt_1(i*10, 0);
+        cv::Point pt_2(i*10, Side);
+        cv::line(overlay, pt_1, pt_2, cv::Scalar(0, 100, 0), 1, cv::LINE_AA, 0);
+        cv::Point pt_3(0, i*10);
+        cv::Point pt_4(Side, i*10);
+        cv::line(overlay, pt_3, pt_4, cv::Scalar(0, 100, 0), 1, cv::LINE_AA, 0);
+    }
+    cv::addWeighted(overlay, alpha, Canvas, 1 - alpha, 0, Canvas);
+    
     GRANSAC::RANSAC<GRANSAC::QuadraticModel, 3> Estimator;
     Estimator.Initialize(1, 100, additional_params); // Threshold, iterations, the threshold is p-1 distance on grid, 1 means 1 grid cell distance
-    int start = cv::getTickCount();
-    Estimator.Estimate(CandPoints);
-    int end = cv::getTickCount();
-    std::cout << "RANSAC took: " << GRANSAC::VPFloat(end - start) / GRANSAC::VPFloat(cv::getTickFrequency()) * 1000.0 << " ms." << std::endl;
+
+    float time_average = 0;
+    for (int i=0; i<100; i++){
+        int start = cv::getTickCount();
+        Estimator.Estimate(CandPoints);
+        int end = cv::getTickCount();
+        float time_of_trial = GRANSAC::VPFloat(end - start) / GRANSAC::VPFloat(cv::getTickFrequency()) * 1000.0; // [ms]
+        time_average += time_of_trial;
+    }
+    std::cout << "RANSAC took, average time in 100 trials: " << time_average/100 << " ms." << std::endl;
 
     auto BestInliers = Estimator.GetBestInliers();
     if (BestInliers.size() > 0)

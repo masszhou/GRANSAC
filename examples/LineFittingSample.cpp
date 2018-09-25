@@ -31,8 +31,8 @@ int main(int argc, char * argv[])
 		return -1;
 	}
 
-	int Side = 1000;
-	int nPoints = 500;
+	int Side = 400;
+	int nPoints = 50;
 	if (argc == 3)
 	{
 		Side = std::atoi(argv[1]);
@@ -63,10 +63,16 @@ int main(int argc, char * argv[])
 
 	GRANSAC::RANSAC<GRANSAC::Line2DModel, 2> Estimator;
 	Estimator.Initialize(20, 100); // Threshold, iterations
-	int start = cv::getTickCount();
-	Estimator.Estimate(CandPoints);
-	int end = cv::getTickCount();
-	std::cout << "RANSAC took: " << GRANSAC::VPFloat(end - start) / GRANSAC::VPFloat(cv::getTickFrequency()) * 1000.0 << " ms." << std::endl;
+    
+	float time_average = 0;
+    for (int i=0; i<100; i++){
+        int start = cv::getTickCount();
+        Estimator.Estimate(CandPoints);
+        int end = cv::getTickCount();
+        float time_of_trial = GRANSAC::VPFloat(end - start) / GRANSAC::VPFloat(cv::getTickFrequency()) * 1000.0; // [ms]
+        time_average += time_of_trial;
+    }
+    std::cout << "RANSAC took, average time in 100 trials: " << time_average/100 << " ms." << std::endl;
 
 	auto BestInliers = Estimator.GetBestInliers();
 	if (BestInliers.size() > 0)
