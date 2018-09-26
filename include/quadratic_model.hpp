@@ -14,11 +14,7 @@ namespace GRANSAC
 // model paramter number = 3
 class QuadraticModel: public AbstractModel<3>
 {
-protected:
-	// Parametric form
-	VPFloat m_a, m_b, m_c; // ax + by + c = 0
-	VPFloat m_DistDenominator; // = sqrt(a^2 + b^2). Stored for efficiency reasons
-    
+protected:    
 	//[1  x0  x0^2] [m_a0] = [y0]
     //[1  x1  x1^2] [m_a1]   [y1]
     //[1  x2  x2^2] [m_a2]   [y2]
@@ -83,12 +79,7 @@ public:
 		int grid_size_x = img_width / grid_num_x; // e.g. 10
 		int grid_size_y = img_height / grid_num_y;
 
-		// for (auto each : additional_params){
-		// 	std::cout << each << ", ";
-		// }
-		// std::cout << std::endl;
-
-		// alway calculate curve with three points
+		// alway calculate curve with three points, since y = ax^2+bx+c
 		if (InputParams.size() != 3)
 			throw std::runtime_error("QuadraticModel - Number of input parameters does not match minimum number required for this model.");
 
