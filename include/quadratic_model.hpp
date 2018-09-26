@@ -20,7 +20,7 @@ protected:
     //[1  x2  x2^2] [m_a2]   [y2]
     //...                    ...
     //[1  xn  xn^2]          [yn]
-    VPFloat m_a0, m_a1, m_a2;
+    // VPFloat m_a0, m_a1, m_a2;
 
 	// build a lookup table to calculate point to curve distance
 	// e.g. target fitting is points in a 400x400 image
@@ -100,18 +100,19 @@ public:
 			y_values.push_back(point->m_Point2D[1]);
 		}
 		polyfit(x_values, y_values, coeff, 2);
-		m_a0 = coeff[0];
-		m_a1 = coeff[1];
-		m_a2 = coeff[2];
 
 		//e.g. img_size=400x400, grid_size=40x40, cell_size=10x10
 		for (int i=0; i<grid_num_x; i++){ // e.g. i=0; i<40
 			
 			float x_0 = float(i*grid_size_x); // e.g. i*10
-			float y_0 = m_a0 + m_a1 * x_0 + m_a2 * x_0 * x_0;
-			
 			float x_1 = float((i+1)*grid_size_x);
-			float y_1 = m_a0 + m_a1 * x_1 + m_a2 * x_1 * x_1;        
+
+			float y_0 = 0;
+			float y_1 = 0;
+            for (int j = 0; j < 3; j++){
+                y_0 += coeff[j]*std::pow(x_0, float(j));
+                y_1 += coeff[j]*std::pow(x_1, float(j));
+            }              
 
 			bool condi_1 = y_0 <= img_height && y_0 >=0; // e.g. condi_1 = y_0<=400 && y_0>=0
 			bool condi_2 = y_1 <= img_height && y_1 >=0;
