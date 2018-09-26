@@ -12,7 +12,11 @@
 
 # 1. My Changes
 * add quadratic model (done)
+![RANSAC quadratic fitting example](./examples/quadratic_fitting.png)
+
 * add polynomial model (done)
+![RANSAC polynomial fitting example](./examples/polynomial_fitting.png)
+
 * dependents on eigen3 for fitting Ax=b
 * add general linear least square model, performance of distance calculation could be a problem (working on)
 * maybe add SVD fitting in the future
