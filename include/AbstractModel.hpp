@@ -30,7 +30,8 @@ std::array<std::shared_ptr<AbstractParameter>, t_NumParams> m_MinModelParams;
 
 public:
     virtual void Initialize(const std::vector<std::shared_ptr<AbstractParameter>> &InputParams, 
-                            const std::vector<float>& addtional_params) = 0;
+                            const std::map<std::string, float>& addtional_params) = 0;
+                            
     virtual std::pair<VPFloat, std::vector<std::shared_ptr<AbstractParameter>>> Evaluate(const std::vector<std::shared_ptr<AbstractParameter>> &EvaluateParams, VPFloat Threshold) = 0;
 
     virtual std::array<std::shared_ptr<AbstractParameter>, t_NumParams> GetModelParams(void) { return m_MinModelParams; };

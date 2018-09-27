@@ -7,6 +7,7 @@
 #include <memory>
 #include <algorithm>
 #include <vector>
+#include <map>
 #include <omp.h>
 
 #include "AbstractModel.hpp"
@@ -32,7 +33,7 @@ private:
 
 	std::vector<std::mt19937> m_RandEngines; // Mersenne twister high quality RNG that support *OpenMP* multi-threading
 
-	std::vector<float> m_additional_params;
+	std::map<std::string, float> m_additional_params;
 
 public:
 	RANSAC(void)
@@ -61,7 +62,7 @@ public:
 	};
 
 	void Initialize(VPFloat Threshold, int MaxIterations = 1000, 
-	                const std::vector<float>& addtional_params = std::vector<float>())
+	                const std::map<std::string, float>& addtional_params = std::map<std::string, float>())
 	{
 		m_Threshold = Threshold;
 		m_MaxIterations = MaxIterations;
@@ -87,6 +88,13 @@ public:
 		std::vector<std::vector<std::shared_ptr<AbstractParameter>>> InliersAccum(m_MaxIterations);
 		m_SampledModels.resize(m_MaxIterations);
 
+		int sampling_num = t_NumParams;
+		if ( m_additional_params.count("sample_num") == 1 ) {
+			// found
+			// sampling_num = m_additional_params["sample_num"];
+			sampling_num = 10;
+		}
+
 		int nThreads = std::max(1, omp_get_max_threads());
 		omp_set_dynamic(0); // Explicitly disable dynamic teams
 		omp_set_num_threads(nThreads);
@@ -94,11 +102,11 @@ public:
 		for (int i = 0; i < m_MaxIterations; ++i)
 		{
 			// Select t_NumParams random samples
-			std::vector<std::shared_ptr<AbstractParameter>> RandomSamples(t_NumParams);
+			std::vector<std::shared_ptr<AbstractParameter>> RandomSamples(sampling_num);
 			std::vector<std::shared_ptr<AbstractParameter>> RemainderSamples = m_Data; // Without the chosen random samples
 
 			std::shuffle(RemainderSamples.begin(), RemainderSamples.end(), m_RandEngines[omp_get_thread_num()]); // To avoid picking the same element more than once
-			std::copy(RemainderSamples.begin(), RemainderSamples.begin() + t_NumParams, RandomSamples.begin());
+			std::copy(RemainderSamples.begin(), RemainderSamples.begin() + sampling_num, RandomSamples.begin());
 			//RemainderSamples.erase(RemainderSamples.begin(), RemainderSamples.begin() + t_NumParams); // Remove the model data points from consideration. 2018: Turns out this is not a good idea
 
 			std::shared_ptr<T> RandomModel = std::make_shared<T>(RandomSamples, m_additional_params);

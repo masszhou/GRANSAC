@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     }
 
     //set grid
-    vector<float> additional_params{float(Side), float(Side), float(Side/10), float(Side/10)};
+    std::map<string, float> additional_params = {{"img_width", float(Side)}, {"img_height", float(Side)}, {"grid_num_x", float(Side/10)}, {"grid_num_y", float(Side/10)}};
     //draw grid
     cv::Mat overlay;
     double alpha = 0.3;

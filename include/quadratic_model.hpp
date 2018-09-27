@@ -50,32 +50,26 @@ protected:
 	};
 
 public:
+	// for better performance, all models in a series trial share the grid properties
+	static int m_img_width;
+	static int m_img_height;
+	static int m_grid_num_x;
+	static int m_grid_num_y;
+
 	QuadraticModel(const std::vector<std::shared_ptr<AbstractParameter>> &input_params, 
-	               const std::vector<float>& additional_params)
+	               const std::map<std::string, float>& additional_params)
 	{
 		Initialize(input_params, additional_params);
 	};
 
 	virtual void Initialize(const std::vector<std::shared_ptr<AbstractParameter>> &InputParams, 
-	                        const std::vector<float>& additional_params) override
+	                        const std::map<std::string, float>& additional_params) override
 	{
-		int img_width;
-		int img_height;
-		int grid_num_x;
-		int grid_num_y;
+		int img_width = 400;
+		int img_height = 400;
+		int grid_num_x = 40;
+		int grid_num_y = 40;
 
-		if (additional_params.size() > 0){
-			img_width = int(additional_params[0]);
-			img_height = int(additional_params[1]);
-			grid_num_x = int(additional_params[2]);
-			grid_num_y = int(additional_params[2]);
-		}else{
-			img_width = 400;
-			img_height = 400;
-			grid_num_x = 40;
-			grid_num_y = 40;
-			// each grid cell is 10x10
-		}
 		int grid_size_x = img_width / grid_num_x; // e.g. 10
 		int grid_size_y = img_height / grid_num_y;
 

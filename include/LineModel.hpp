@@ -39,13 +39,13 @@ protected:
 
 public:
 	Line2DModel(const std::vector<std::shared_ptr<AbstractParameter>> &InputParams, 
-	            const std::vector<float>& additional_params)
+	            const std::map<std::string, float>& additional_params)
 	{
 		Initialize(InputParams, additional_params);
 	};
 
 	virtual void Initialize(const std::vector<std::shared_ptr<AbstractParameter>> &InputParams, 
-	                        const std::vector<float>& additional_params) override
+	                        const std::map<std::string, float>& additional_params) override
 	{
 		if (InputParams.size() != 2)
 			throw std::runtime_error("Line2DModel - Number of input parameters does not match minimum number required for this model.");
