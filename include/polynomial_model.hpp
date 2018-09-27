@@ -101,7 +101,8 @@ public:
 			y_values.push_back(point->m_Point2D[1]);
 		}
 		polyfit(x_values, y_values, coeff, t_param_num-1);
-
+		
+		m_occupied_list.reserve(grid_num_x*grid_num_y/2);
 		//e.g. img_size=400x400, grid_size=40x40, cell_size=10x10
 		for (int i=0; i<grid_num_x; i++){ // e.g. i=0; i<40
 			
