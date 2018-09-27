@@ -1,5 +1,5 @@
-#ifndef LLS_MODEL_HPP
-#define LLS_MODEL_HPP
+#ifndef QUADRATIC_MODEL_HPP
+#define QUADRATIC_MODEL_HPP
 
 #include "AbstractModel.hpp"
 #include "basic_types.hpp"
@@ -193,4 +193,4 @@ public:
 
 }
 
-#endif /* LLS_MODEL_HPP */
+#endif /* QUADRATIC_MODEL_HPP */
