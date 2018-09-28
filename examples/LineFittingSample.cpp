@@ -6,107 +6,105 @@
 #include "GRANSAC.hpp"
 #include "LineModel.hpp"
 
-GRANSAC::VPFloat Slope(int x0, int y0, int x1, int y1)
+float Slope(int x0, int y0, int x1, int y1)
 {
-	return (GRANSAC::VPFloat)(y1 - y0) / (x1 - x0);
+	return (float)(y1 - y0) / (x1 - x0);
 }
 
-void DrawFullLine(cv::Mat& img, cv::Point a, cv::Point b, cv::Scalar color, int LineWidth)
+void drawFullLine(cv::Mat& img, cv::Point a, cv::Point b, cv::Scalar color, int line_width)
 {
-	GRANSAC::VPFloat slope = Slope(a.x, a.y, b.x, b.y);
+	float slope = Slope(a.x, a.y, b.x, b.y);
 
 	cv::Point p(0, 0), q(img.cols, img.rows);
 
 	p.y = -(a.x - p.x) * slope + a.y;
 	q.y = -(b.x - q.x) * slope + b.y;
 
-	cv::line(img, p, q, color, LineWidth, cv::LINE_AA, 0);
+	cv::line(img, p, q, color, line_width, cv::LINE_AA, 0);
 }
 
 int main(int argc, char * argv[])
 {
-	if (argc != 1 && argc != 3)
-	{
+	if (argc != 1 && argc != 3){
 		std::cout << "[ USAGE ]: " << argv[0] << " [<Image Size> = 1000] [<nPoints> = 500]" << std::endl;
 		return -1;
 	}
 
-	int Side = 400;
-	int nPoints = 50;
-	if (argc == 3)
-	{
-		Side = std::atoi(argv[1]);
-		nPoints = std::atoi(argv[2]);
+	int side = 400;
+	int n_points = 50;
+	if (argc == 3){
+		side = std::atoi(argv[1]);
+		n_points = std::atoi(argv[2]);
 	}
 
-	cv::Mat Canvas(Side, Side, CV_8UC3);
-	Canvas.setTo(255);
+	cv::Mat img_canvas(side, side, CV_8UC3);
+	img_canvas.setTo(255);
 
 	// Randomly generate points in a 2D plane roughly aligned in a line for testing
-	std::random_device SeedDevice;
-	std::mt19937 RNG = std::mt19937(SeedDevice());
+	std::random_device seed_device;
+	std::mt19937 RNG = std::mt19937(seed_device());
 
-	std::uniform_int_distribution<int> UniDist(0, Side - 1); // [Incl, Incl]
-	int Perturb = 25;
-	std::normal_distribution<GRANSAC::VPFloat> PerturbDist(0, Perturb);
+	std::uniform_int_distribution<int> uni_dist(0, side - 1); // [Incl, Incl]
+	int perturb = 25;
+	std::normal_distribution<float> perturb_dist(0, perturb);
 
-	std::vector<std::shared_ptr<GRANSAC::AbstractParameter>> CandPoints;
-	for (int i = 0; i < nPoints; ++i)
+	std::vector<std::shared_ptr<GRANSAC::AbstractParameter>> cand_points;
+	for (int i = 0; i < n_points; ++i)
 	{
-		int Diag = UniDist(RNG);
-		cv::Point Pt(floor(Diag + PerturbDist(RNG)), floor(Diag + PerturbDist(RNG)));
-		cv::circle(Canvas, Pt, floor(Side / 100) + 3, cv::Scalar(0, 0, 0), 2, cv::LINE_AA);
+		int diag = uni_dist(RNG);
+		cv::Point pt(floor(diag + perturb_dist(RNG)), floor(diag + perturb_dist(RNG)));
+		cv::circle(img_canvas, pt, floor(side / 100) + 3, cv::Scalar(0, 0, 0), 2, cv::LINE_AA);
 
-		std::shared_ptr<GRANSAC::AbstractParameter> CandPt = std::make_shared<GRANSAC::Point2D>(Pt.x, Pt.y);
-		CandPoints.push_back(CandPt);
+		std::shared_ptr<GRANSAC::AbstractParameter> cand_pt = std::make_shared<GRANSAC::Point2D>(pt.x, pt.y);
+		cand_points.push_back(cand_pt);
 	}
 
-	GRANSAC::RANSAC<GRANSAC::Line2DModel, 2> Estimator;
-	Estimator.Initialize(20, 100); // Threshold, iterations
+	GRANSAC::RANSAC<GRANSAC::Line2DModel, 2> estimator;
+	estimator.initialize(20, 100); // Threshold, iterations
     
 	float time_average = 0;
     for (int i=0; i<100; i++){
         int start = cv::getTickCount();
-        Estimator.Estimate(CandPoints);
+        estimator.estimate(cand_points);
         int end = cv::getTickCount();
-        float time_of_trial = GRANSAC::VPFloat(end - start) / GRANSAC::VPFloat(cv::getTickFrequency()) * 1000.0; // [ms]
+        float time_of_trial = float(end - start) / float(cv::getTickFrequency()) * 1000.0; // [ms]
         time_average += time_of_trial;
     }
     std::cout << "RANSAC took, average time in 100 trials: " << time_average/100 << " ms." << std::endl;
 
-	auto BestInliers = Estimator.GetBestInliers();
-	if (BestInliers.size() > 0)
+	auto best_inliers = estimator.getBestInliers();
+	if (best_inliers.size() > 0)
 	{
-		for (auto& Inlier : BestInliers)
+		for (auto& inlier : best_inliers)
 		{
-			auto RPt = std::dynamic_pointer_cast<GRANSAC::Point2D>(Inlier);
-			cv::Point Pt(floor(RPt->m_Point2D[0]), floor(RPt->m_Point2D[1]));
-			cv::circle(Canvas, Pt, floor(Side / 100), cv::Scalar(0, 255, 0), -1, cv::LINE_AA);
+			auto RPt = std::dynamic_pointer_cast<GRANSAC::Point2D>(inlier);
+			cv::Point pt(floor(RPt->m_point2D[0]), floor(RPt->m_point2D[1]));
+			cv::circle(img_canvas, pt, floor(side / 100), cv::Scalar(0, 255, 0), -1, cv::LINE_AA);
 		}
 	}
 
-	auto BestLine = Estimator.GetBestModel();
-	if (BestLine)
+	auto best_line = estimator.getBestModel();
+	if (best_line)
 	{
-		auto BestLinePt1 = std::dynamic_pointer_cast<GRANSAC::Point2D>(BestLine->GetModelParams()[0]);
-		auto BestLinePt2 = std::dynamic_pointer_cast<GRANSAC::Point2D>(BestLine->GetModelParams()[1]);
-		if (BestLinePt1 && BestLinePt2)
+		auto best_line_pt1 = std::dynamic_pointer_cast<GRANSAC::Point2D>(best_line->getModelDefParams()[0]);
+		auto best_line_pt2 = std::dynamic_pointer_cast<GRANSAC::Point2D>(best_line->getModelDefParams()[1]);
+		if (best_line_pt1 && best_line_pt2)
 		{
-			cv::Point Pt1(BestLinePt1->m_Point2D[0], BestLinePt1->m_Point2D[1]);
-			cv::Point Pt2(BestLinePt2->m_Point2D[0], BestLinePt2->m_Point2D[1]);
-			DrawFullLine(Canvas, Pt1, Pt2, cv::Scalar(0, 0, 255), 2);
+			cv::Point pt1(best_line_pt1->m_point2D[0], best_line_pt1->m_point2D[1]);
+			cv::Point pt2(best_line_pt2->m_point2D[0], best_line_pt2->m_point2D[1]);
+			drawFullLine(img_canvas, pt1, pt2, cv::Scalar(0, 0, 255), 2);
 		}
 	}
 
 	while (true)
 	{
-		cv::imshow("RANSAC Example", Canvas);
+		cv::imshow("RANSAC Example", img_canvas);
 
 		char Key = cv::waitKey(1);
 		if (Key == 27)
 			return 0;
 		if (Key == ' ')
-			cv::imwrite("LineFitting.png", Canvas);
+			cv::imwrite("LineFitting.png", img_canvas);
 	}
 
 	return 0;

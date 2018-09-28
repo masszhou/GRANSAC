@@ -11,84 +11,78 @@ class Line2DModel: public AbstractModel<2>
 {
 protected:
 	// Parametric form
-	VPFloat m_a, m_b, m_c; // ax + by + c = 0
-	VPFloat m_DistDenominator; // = sqrt(a^2 + b^2). Stored for efficiency reasons
+	float m_a, m_b, m_c; // ax + by + c = 0
+	float m_dist_denominator; // = sqrt(a^2 + b^2). Stored for efficiency reasons
 
 	// Another parametrization y = mx + d
-	VPFloat m_m; // Slope
-	VPFloat m_d; // Intercept
+	float m_m; // Slope
+	float m_d; // Intercept
 
-	virtual VPFloat ComputeDistanceMeasure(std::shared_ptr<AbstractParameter> Param) override
+	virtual float  computeDistanceMeasure(std::shared_ptr<AbstractParameter> input_data) override
 	{
-		auto ExtPoint2D = std::dynamic_pointer_cast<Point2D>(Param);
-		if (ExtPoint2D == nullptr)
+		auto ext_point2D = std::dynamic_pointer_cast<Point2D>(input_data);
+		if (ext_point2D == nullptr)
 			throw std::runtime_error("Line2DModel::ComputeDistanceMeasure() - Passed parameter are not of type Point2D.");
 
 		// Return distance between passed "point" and this line
 		// http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
-		VPFloat Numer = fabs(m_a * ExtPoint2D->m_Point2D[0] + m_b * ExtPoint2D->m_Point2D[1] + m_c);
-		VPFloat Dist = Numer / m_DistDenominator;
+		float numer = fabs(m_a * ext_point2D->m_point2D[0] + m_b * ext_point2D->m_point2D[1] + m_c);
+		float dist = numer / m_dist_denominator;
 
-		//// Debug
-		//std::cout << "Point: " << ExtPoint2D->m_Point2D[0] << ", " << ExtPoint2D->m_Point2D[1] << std::endl;
-		//std::cout << "Line: " << m_a << " x + " << m_b << " y + "  << m_c << std::endl;
-		//std::cout << "Distance: " << Dist << std::endl << std::endl;
-
-		return Dist;
+		return dist;
 	};
 
 public:
-	Line2DModel(const std::vector<std::shared_ptr<AbstractParameter>> &InputParams, 
+	Line2DModel(const std::vector<std::shared_ptr<AbstractParameter>> &input_data, 
 	            const std::map<std::string, float>& additional_params)
 	{
-		Initialize(InputParams, additional_params);
+		initialize(input_data, additional_params);
 	};
 
-	virtual void Initialize(const std::vector<std::shared_ptr<AbstractParameter>> &InputParams, 
+	virtual void initialize(const std::vector<std::shared_ptr<AbstractParameter>> &input_data, 
 	                        const std::map<std::string, float>& additional_params) override
 	{
-		if (InputParams.size() != 2)
+		if (input_data.size() != 2)
 			throw std::runtime_error("Line2DModel - Number of input parameters does not match minimum number required for this model.");
 
 		// Check for AbstractParamter types
-		auto Point1 = std::dynamic_pointer_cast<Point2D>(InputParams[0]);
-		auto Point2 = std::dynamic_pointer_cast<Point2D>(InputParams[1]);
-		if (Point1 == nullptr || Point2 == nullptr)
+		auto point1 = std::dynamic_pointer_cast<Point2D>(input_data[0]);
+		auto point2 = std::dynamic_pointer_cast<Point2D>(input_data[1]);
+		if (point1 == nullptr || point2 == nullptr)
 			throw std::runtime_error("Line2DModel - InputParams type mismatch. It is not a Point2D.");
 
-		std::copy(InputParams.begin(), InputParams.end(), m_MinModelParams.begin());
+		m_model_def_parameters = input_data;
 
 		// Compute the line parameters
-		m_m = (Point2->m_Point2D[1] - Point1->m_Point2D[1]) / (Point2->m_Point2D[0] - Point1->m_Point2D[0]); // Slope
-		m_d = Point1->m_Point2D[1] - m_m * Point1->m_Point2D[0]; // Intercept
-		// m_d = Point2->m_Point2D[1] - m_m * Point2->m_Point2D[0]; // Intercept - alternative should be the same as above
+		m_m = (point2->m_point2D[1] - point1->m_point2D[1]) / (point2->m_point2D[0] - point1->m_point2D[0]); // Slope
+		m_d = point1->m_point2D[1] - m_m * point1->m_point2D[0]; // Intercept
 
 		// mx - y + d = 0
 		m_a = m_m;
 		m_b = -1.0;
 		m_c = m_d;
 
-		m_DistDenominator = sqrt(m_a * m_a + m_b * m_b); // Cache square root for efficiency
+		m_dist_denominator = sqrt(m_a * m_a + m_b * m_b); // Cache square root for efficiency
 	};
 
-	virtual std::pair<VPFloat, std::vector<std::shared_ptr<AbstractParameter>>> Evaluate(const std::vector<std::shared_ptr<AbstractParameter>>& EvaluateParams, VPFloat Threshold)
+	virtual std::pair<float, std::vector<std::shared_ptr<AbstractParameter> > > evaluate(const std::vector<std::shared_ptr<AbstractParameter>>& evaluate_data, float threshold)
 	{
-		std::vector<std::shared_ptr<AbstractParameter>> Inliers;
-		int nTotalParams = EvaluateParams.size();
-		int nInliers = 0;
+		std::vector<std::shared_ptr<AbstractParameter>> inliers;
+		int n_total_data = evaluate_data.size();
+		int n_inliers = 0;
 
-		for (auto& Param : EvaluateParams)
+		for (auto& each : evaluate_data)
 		{
-			if (ComputeDistanceMeasure(Param) < Threshold)
+			if (computeDistanceMeasure(each) < threshold)
 			{
-				Inliers.push_back(Param);
-				nInliers++;
+				inliers.push_back(each);
+				n_inliers++;
 			}
 		}
 
-		VPFloat InlierFraction = VPFloat(nInliers) / VPFloat(nTotalParams); // This is the inlier fraction
+		float inlier_fraction = float(n_inliers) / float(n_total_data); // This is the inlier fraction
 
-		return std::make_pair(InlierFraction, Inliers);
+		return std::make_pair(inlier_fraction, inliers);
 	};
 };
 
