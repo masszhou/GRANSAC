@@ -25,13 +25,14 @@ protected:
 	// build a lookup table to calculate point to curve distance
 	// e.g. target fitting is points in a 400x400 image
 	// then grid of lookup table is 40x40 cell, each cell is 10x10 pixel
-	int m_grid_size; // cell size of grid, e.g. m_grid_size = 10 -> each cell is 10x10 pixel
+	int m_grid_size_x; // cell size of grid, e.g. m_grid_size = 10 -> each cell is 10x10 pixel
+	int m_grid_size_y;
 	std::vector<std::vector<float> > m_occupied_list;
 
-	virtual VPFloat ComputeDistanceMeasure(std::shared_ptr<AbstractParameter> Param) override
+	virtual float computeDistanceMeasure(std::shared_ptr<AbstractParameter> input_data) override
 	{
-		auto ExtPoint2D = std::dynamic_pointer_cast<Point2D>(Param);
-		if (ExtPoint2D == nullptr)
+		auto ext_point2D = std::dynamic_pointer_cast<Point2D>(input_data);
+		if (ext_point2D == nullptr)
 			throw std::runtime_error("QuadraticModel::ComputeDistanceMeasure() - Passed parameter are not of type Point2D.");
 
 		// distance of point (x0, y0) to quadratic curve y(x)=a0+a1*x+a2*x*x
@@ -42,7 +43,7 @@ protected:
 		// build a lookup table for distance calculation
 		float min_dist = std::numeric_limits<float>::max();
         for (auto each : m_occupied_list){
-            float dist = fabs(ExtPoint2D->m_Point2D[0]/10-each[0]) + fabs(ExtPoint2D->m_Point2D[1]/10-each[1]); // p-1 distance, 10 is grid size
+            float dist = fabs(ext_point2D->m_point2D[0]/m_grid_size_x-each[0]) + fabs(ext_point2D->m_point2D[1]/m_grid_size_y-each[1]); // p-1 distance, 10 is grid size
             if (min_dist > dist)
                 min_dist = dist;
         }
@@ -54,10 +55,10 @@ public:
 	QuadraticModel(const std::vector<std::shared_ptr<AbstractParameter>> &input_params, 
 	               const std::map<std::string, float>& additional_params)
 	{
-		Initialize(input_params, additional_params);
+		initialize(input_params, additional_params);
 	};
 
-	virtual void Initialize(const std::vector<std::shared_ptr<AbstractParameter>> &InputParams, 
+	virtual void initialize(const std::vector<std::shared_ptr<AbstractParameter>> &input_data, 
 	                        const std::map<std::string, float>& additional_params) override
 	{
 		int img_width = (additional_params.count("img_width") == 1) ? additional_params.at("img_width") : 400;
@@ -65,43 +66,53 @@ public:
 		int grid_num_x = (additional_params.count("grid_num_x") == 1) ? additional_params.at("grid_num_x") : 40;
 		int grid_num_y = (additional_params.count("grid_num_y") == 1) ? additional_params.at("grid_num_y") : 40;
 
-		int grid_size_x = img_width / grid_num_x; // e.g. 10
-		int grid_size_y = img_height / grid_num_y;
+		m_grid_size_x = img_width / grid_num_x; // e.g. 10
+		m_grid_size_y = img_height / grid_num_y;
 
 		// alway calculate curve with three points, since y = ax^2+bx+c
-		if (InputParams.size() != 3)
+		if (input_data.size() != 3)
 			throw std::runtime_error("QuadraticModel - Number of input parameters does not match minimum number required for this model.");
 
 		// Check for AbstractParamter types
-		auto Point1 = std::dynamic_pointer_cast<Point2D>(InputParams[0]);
-		auto Point2 = std::dynamic_pointer_cast<Point2D>(InputParams[1]);
-		auto Point3 = std::dynamic_pointer_cast<Point2D>(InputParams[2]);
-		if (Point1 == nullptr || Point2 == nullptr || Point3 == nullptr)
-			throw std::runtime_error("QuadraticModel - InputParams type mismatch. It is not a Point2D.");
+		// auto point1 = std::dynamic_pointer_cast<Point2D>(input_data[0]);
+		// auto point2 = std::dynamic_pointer_cast<Point2D>(input_data[1]);
+		// auto point3 = std::dynamic_pointer_cast<Point2D>(input_data[2]);
+		// if (point1 == nullptr || point2 == nullptr || point3 == nullptr)
+		// 	throw std::runtime_error("Line2DModel - InputParams type mismatch. It is not a Point2D.");
 
-		std::copy(InputParams.begin(), InputParams.end(), m_MinModelParams.begin());
+		m_model_def_parameters = input_data;
 
 		// compute deterministic curve parameters with 3 points
 		std::vector<double> x_values, y_values, coeff;
-		for (int i=0; i< InputParams.size(); i++){
-			auto point = std::dynamic_pointer_cast<Point2D>(InputParams[i]);
-			x_values.push_back(point->m_Point2D[0]);
-			y_values.push_back(point->m_Point2D[1]);
-		}
-		polyfit(x_values, y_values, coeff, 2);
+		for (int i=0; i< input_data.size(); i++){
+			auto point = std::dynamic_pointer_cast<Point2D>(input_data[i]);
+			if (point == nullptr)
+				throw std::runtime_error("QuadraticModel - InputParams type mismatch. It is not a Point2D.");
 
+			x_values.push_back(point->m_point2D[0]);
+			y_values.push_back(point->m_point2D[1]);
+		}
+
+		// copy data as definition points
+		// m_model_def_parameters = input_data;
+		
+		// calculate deterministic fitting
+		polyfit(x_values, y_values, coeff, 2);
+		// std::cout << coeff[0] << ", " << coeff[1] << ", " << coeff[2] << std::endl; 
+
+		m_occupied_list.reserve(grid_num_x*grid_num_y/2);
 		//e.g. img_size=400x400, grid_size=40x40, cell_size=10x10
 		for (int i=0; i<grid_num_x; i++){ // e.g. i=0; i<40
 			
-			float x_0 = float(i*grid_size_x); // e.g. i*10
-			float x_1 = float((i+1)*grid_size_x);
+			float x_0 = float(i*m_grid_size_x); // e.g. i*10
+			float x_1 = float((i+1)*m_grid_size_x);
 
-			float y_0 = 0;
+            float y_0 = 0;
 			float y_1 = 0;
             for (int j = 0; j < 3; j++){
                 y_0 += coeff[j]*std::pow(x_0, float(j));
                 y_1 += coeff[j]*std::pow(x_1, float(j));
-            }              
+            }        
 
 			bool condi_1 = y_0 <= img_height && y_0 >=0; // e.g. condi_1 = y_0<=400 && y_0>=0
 			bool condi_2 = y_1 <= img_height && y_1 >=0;
@@ -111,8 +122,8 @@ public:
 				y_1 = (y_1 > img_height) ? img_height : y_1;
 				y_1 = (y_1 < 0) ? 0 : y_1;
 
-				int y_0_idx = floor(y_0 / grid_size_y); // e.g. y_0_idx = floor(y_0 / 10)
-				int y_1_idx = floor(y_1 / grid_size_y);
+				int y_0_idx = floor(y_0 / m_grid_size_y); // e.g. y_0_idx = floor(y_0 / 10)
+				int y_1_idx = floor(y_1 / m_grid_size_y);
 
 				if (y_0_idx < y_1_idx){
 					for (int j=y_0_idx; j<y_1_idx; j++){
@@ -134,24 +145,24 @@ public:
 		
 	};
 
-	virtual std::pair<VPFloat, std::vector<std::shared_ptr<AbstractParameter>>> Evaluate(const std::vector<std::shared_ptr<AbstractParameter>>& EvaluateParams, VPFloat Threshold)
+	virtual std::pair<float, std::vector<std::shared_ptr<AbstractParameter>>> evaluate(const std::vector<std::shared_ptr<AbstractParameter>>& evaluate_data, float threshold)
 	{
-		std::vector<std::shared_ptr<AbstractParameter>> Inliers;
-		int nTotalParams = EvaluateParams.size();
-		int nInliers = 0;
+		std::vector<std::shared_ptr<AbstractParameter>> inliers;
+		int n_total_data = evaluate_data.size();
+		int n_inliers = 0;
 
-		for (auto& Param : EvaluateParams)
+		for (auto& each : evaluate_data)
 		{
-			if (ComputeDistanceMeasure(Param) < Threshold)
+			if (computeDistanceMeasure(each) < threshold)
 			{
-				Inliers.push_back(Param);
-				nInliers++;
+				inliers.push_back(each);
+				n_inliers++;
 			}
 		}
 
-		VPFloat InlierFraction = VPFloat(nInliers) / VPFloat(nTotalParams); // This is the inlier fraction
+		float inlier_fraction = float(n_inliers) / float(n_total_data); // This is the inlier fraction
 
-		return std::make_pair(InlierFraction, Inliers);
+		return std::make_pair(inlier_fraction, inliers);
 	};
 
 
