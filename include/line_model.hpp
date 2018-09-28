@@ -2,7 +2,7 @@
 
 #include "AbstractModel.hpp"
 #include "basic_types.hpp"
-
+#include <map>
 
 namespace GRANSAC
 {

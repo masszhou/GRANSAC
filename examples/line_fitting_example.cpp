@@ -4,7 +4,7 @@
 #include <random>
 
 #include "GRANSAC.hpp"
-#include "LineModel.hpp"
+#include "line_model.hpp"
 
 float Slope(int x0, int y0, int x1, int y1)
 {
