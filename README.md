@@ -39,10 +39,12 @@ $ make
 
 # 3. Contact
 Autonomous Driving / Machine Learning Engineer
-Zhiliang Zhou, [Linkedin](https://www.linkedin.com/in/zhiliang-zhou/)
+
+Author, Zhiliang Zhou, [Linkedin](https://www.linkedin.com/in/zhiliang-zhou/)
 
 
 ---
 # 4. Information about original repository
-* GRANSAC: Multi-threaded generic RANSAC implemetation
-* Author, Srinath Sridhar (srinaths@umich.edu), Max Planck Institute for Informatics
+GRANSAC: Multi-threaded generic RANSAC implemetation
+
+Author, Srinath Sridhar (srinaths@umich.edu), Max Planck Institute for Informatics
