@@ -88,10 +88,11 @@ public:
 		m_sampled_models.resize(m_max_iterations);
 
 		int sample_num = t_num_params; // deterministic sample
-		if ( m_additional_params.count("sample_num") == 1 ) {
+		if ( m_additional_params.count("sample_number") == 1 ) {
 			// found
-			sample_num = m_additional_params.at("sample_num"); // over-deterministic sample. under-deterministic sample not suppported yet.
+			sample_num = m_additional_params.at("sample_number"); // over-deterministic sample. under-deterministic sample not suppported yet.
 		}
+
 
 		int n_threads = std::max(1, omp_get_max_threads());
 		omp_set_dynamic(0); // Explicitly disable dynamic teams

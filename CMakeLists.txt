@@ -35,7 +35,7 @@ ENDIF()
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # add executable
-add_executable(test_line_fitting examples/LineFittingSample.cpp)
+add_executable(test_line_fitting examples/line_fitting_example.cpp)
 target_link_libraries(test_line_fitting ${OpenCV_LIBRARIES})
 
 add_executable(test_quadratic_example examples/quadratic_fitting_sample.cpp)
@@ -43,3 +43,6 @@ target_link_libraries(test_quadratic_example ${OpenCV_LIBRARIES})
 
 add_executable(test_polynomial_example examples/polynomial_fitting_sample.cpp)
 target_link_libraries(test_polynomial_example ${OpenCV_LIBRARIES})
+
+add_executable(test_lls_example examples/lls_fitting_example.cpp)
+target_link_libraries(test_lls_example ${OpenCV_LIBRARIES})
