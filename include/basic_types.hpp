@@ -6,18 +6,18 @@
 namespace GRANSAC
 {
 
-typedef std::array<VPFloat, 2> Vector2VP;
+typedef std::array<float, 2> Vector2f;
 
 class Point2D: public AbstractParameter
 {
 public:
-	Point2D(VPFloat x, VPFloat y)
+	Point2D(float x, float y)
 	{
-		m_Point2D[0] = x;
-		m_Point2D[1] = y;
+		m_point2D[0] = x;
+		m_point2D[1] = y;
 	};
 
-	GRANSAC::Vector2VP m_Point2D;
+	GRANSAC::Vector2f m_point2D;
 };
 
 }

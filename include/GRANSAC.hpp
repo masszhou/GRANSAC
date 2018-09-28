@@ -16,124 +16,121 @@ namespace GRANSAC
 {
 	
 // T - AbstractModel
-template <class T, int t_NumParams>
+template <class T, int t_num_params>
 class RANSAC
 {
 private:
-	std::vector<std::shared_ptr<AbstractParameter>> m_Data; // All the data
+	std::vector<std::shared_ptr<AbstractParameter>> m_data; // All the data points
 
-	std::vector<std::shared_ptr<T>> m_SampledModels; // Vector of all sampled models
-	std::shared_ptr<T> m_BestModel; // Pointer to the best model, valid only after Estimate() is called
-	std::vector<std::shared_ptr<AbstractParameter>> m_BestInliers;
+	std::vector<std::shared_ptr<T> > m_sampled_models; // Vector of all sampled models
+	std::shared_ptr<T> m_best_model; // Pointer to the best model, valid only after Estimate() is called
+	std::vector<std::shared_ptr<AbstractParameter>> m_best_inliers;
 
-	int m_MaxIterations; // Number of iterations before termination
-	VPFloat m_Threshold; // The threshold for computing model consensus
-	VPFloat m_BestModelScore; // The score of the best model
-	int m_BestModelIdx;
+	int m_max_iterations; // Number of iterations before termination
+	float m_threshold; // The threshold for computing model consensus
+	float m_best_model_score; // The score of the best model
+	int m_best_model_idx;
 
-	std::vector<std::mt19937> m_RandEngines; // Mersenne twister high quality RNG that support *OpenMP* multi-threading
+	std::vector<std::mt19937> m_rand_engines; // Mersenne twister high quality RNG that support *OpenMP* multi-threading
 
 	std::map<std::string, float> m_additional_params;
 
 public:
 	RANSAC(void)
 	{
-		int nThreads = std::max(1, omp_get_max_threads());
-		std::cout << "[ INFO ]: Maximum usable threads: " << nThreads << std::endl;
-		for (int i = 0; i < nThreads; ++i)
+		int n_threads = std::max(1, omp_get_max_threads());
+		std::cout << "[ INFO ]: Maximum usable threads: " << n_threads << std::endl;
+		for (int i = 0; i < n_threads; ++i)
 		{
-			std::random_device SeedDevice;
-			m_RandEngines.push_back(std::mt19937(SeedDevice()));
+			std::random_device seed_device;
+			m_rand_engines.push_back(std::mt19937(seed_device()));
 		}
 
-		Reset();
+		reset();
 	};
 
 	virtual ~RANSAC(void) {};
 
-	void Reset(void)
+	void reset(void)
 	{
 		// Clear sampled models, etc. and prepare for next call. Reset RANSAC estimator state
-		m_Data.clear();
-		m_SampledModels.clear();
+		m_data.clear();
+		m_sampled_models.clear();
 
-		m_BestModelIdx = -1;
-		m_BestModelScore = 0.0;
+		m_best_model_idx = -1;
+		m_best_model_score = 0.0;
 	};
 
-	void Initialize(VPFloat Threshold, int MaxIterations = 1000, 
+	void initialize(float threshold, int max_iterations = 1000, 
 	                const std::map<std::string, float>& addtional_params = std::map<std::string, float>())
 	{
-		m_Threshold = Threshold;
-		m_MaxIterations = MaxIterations;
+		m_threshold = threshold;
+		m_max_iterations = max_iterations;
 		m_additional_params = addtional_params;
 	};
 
-	std::shared_ptr<T> GetBestModel(void) { return m_BestModel; };
-	const std::vector<std::shared_ptr<AbstractParameter>>& GetBestInliers(void) { return m_BestInliers; };
+	std::shared_ptr<T> getBestModel(void) { return m_best_model; };
+	const std::vector<std::shared_ptr<AbstractParameter>>& getBestInliers(void) { return m_best_inliers; };
 
-	bool Estimate(const std::vector<std::shared_ptr<AbstractParameter>> &Data)
+	bool estimate(const std::vector<std::shared_ptr<AbstractParameter>> &data)
 	{
-		if (Data.size() <= t_NumParams)
-		{
+		if (data.size() <= t_num_params){
 			std::cerr << "[ WARN ]: RANSAC - Number of data points is too less. Not doing anything." << std::endl;
 			return false;
 		}
 
-		m_Data = Data;
-		int DataSize = m_Data.size();
-		std::uniform_int_distribution<int> UniDist(0, int(DataSize - 1)); // Both inclusive
+		m_data = data;
+		int data_size = m_data.size();
+		std::uniform_int_distribution<int> uni_dist(0, int(data_size - 1)); // Both inclusive
 
-		std::vector<VPFloat> InlierFractionAccum(m_MaxIterations);
-		std::vector<std::vector<std::shared_ptr<AbstractParameter>>> InliersAccum(m_MaxIterations);
-		m_SampledModels.resize(m_MaxIterations);
+		std::vector<float> inlier_fraction_accum(m_max_iterations);
+		std::vector<std::vector<std::shared_ptr<AbstractParameter>>> inliers_accum(m_max_iterations);
+		m_sampled_models.resize(m_max_iterations);
 
-		int sampling_num = t_NumParams;
+		int sample_num = t_num_params; // deterministic sample
 		if ( m_additional_params.count("sample_num") == 1 ) {
 			// found
-			// sampling_num = m_additional_params["sample_num"];
-			sampling_num = 10;
+			sample_num = m_additional_params.at("sample_num"); // over-deterministic sample. under-deterministic sample not suppported yet.
 		}
 
-		int nThreads = std::max(1, omp_get_max_threads());
+		int n_threads = std::max(1, omp_get_max_threads());
 		omp_set_dynamic(0); // Explicitly disable dynamic teams
-		omp_set_num_threads(nThreads);
+		omp_set_num_threads(n_threads);
 #pragma omp parallel for
-		for (int i = 0; i < m_MaxIterations; ++i)
+		for (int i = 0; i < m_max_iterations; ++i)
 		{
 			// Select t_NumParams random samples
-			std::vector<std::shared_ptr<AbstractParameter>> RandomSamples(sampling_num);
-			std::vector<std::shared_ptr<AbstractParameter>> RemainderSamples = m_Data; // Without the chosen random samples
+			std::vector<std::shared_ptr<AbstractParameter>> random_samples(sample_num);
+			std::vector<std::shared_ptr<AbstractParameter>> remainder_samples = m_data; // Without the chosen random samples
 
-			std::shuffle(RemainderSamples.begin(), RemainderSamples.end(), m_RandEngines[omp_get_thread_num()]); // To avoid picking the same element more than once
-			std::copy(RemainderSamples.begin(), RemainderSamples.begin() + sampling_num, RandomSamples.begin());
-			//RemainderSamples.erase(RemainderSamples.begin(), RemainderSamples.begin() + t_NumParams); // Remove the model data points from consideration. 2018: Turns out this is not a good idea
+			std::shuffle(remainder_samples.begin(), remainder_samples.end(), m_rand_engines[omp_get_thread_num()]); // To avoid picking the same element more than once
+			std::copy(remainder_samples.begin(), remainder_samples.begin() + sample_num, random_samples.begin());
 
-			std::shared_ptr<T> RandomModel = std::make_shared<T>(RandomSamples, m_additional_params);
+			std::shared_ptr<T> random_model = std::make_shared<T>(random_samples, m_additional_params);
 
 			// Check if the sampled model is the best so far
-			std::pair<VPFloat, std::vector<std::shared_ptr<AbstractParameter>>> EvalPair = RandomModel->Evaluate(RemainderSamples, m_Threshold);
-			InlierFractionAccum[i] = EvalPair.first;
-			InliersAccum[i] = EvalPair.second;
+			std::pair<float, std::vector<std::shared_ptr<AbstractParameter> > > eval_pair = random_model->evaluate(remainder_samples, m_threshold);
+			inlier_fraction_accum[i] = eval_pair.first;
+			inliers_accum[i] = eval_pair.second;
 
 			// Push back into history. Could be removed later
-			m_SampledModels[i] = RandomModel;
+			m_sampled_models[i] = random_model;
 		}
 
-		for (int i = 0; i < m_MaxIterations; ++i)
+		for (int i = 0; i < m_max_iterations; ++i)
 		{
-			if (InlierFractionAccum[i] > m_BestModelScore)
+			if (inlier_fraction_accum[i] > m_best_model_score)
 			{
-				m_BestModelScore = InlierFractionAccum[i];
-				m_BestModelIdx = m_SampledModels.size() - 1;
-				m_BestModel = m_SampledModels[i];
-				m_BestInliers = InliersAccum[i];
+				m_best_model_score = inlier_fraction_accum[i];
+				m_best_model_idx = m_sampled_models.size() - 1;
+				m_best_model = m_sampled_models[i];
+				m_best_inliers = inliers_accum[i];
 			}
 		}
 
 		//std::cerr << "BestInlierFraction: " << m_BestModelScore << std::endl;
 
-		Reset();
+		reset();
 
 		return true;
 	};
