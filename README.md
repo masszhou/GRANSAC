@@ -47,7 +47,7 @@ finally we have $ x = R_1^{-1}Q_1^Tb$, where $Q_1,R_1$ are from thin QR decompos
 
 * regularized (L2) least square (working), [discussion](https://math.stackexchange.com/questions/2013160/qr-factorization-regularized-least-squares)
 
-$$\min_{x}\|Ax-b\|_2^2 + \lambda \|x\|_2^2$$
+<!-- $$\min_{x}\|Ax-b\|_2^2 + \lambda \|x\|_2^2$$
 
 $$
 \begin{equation}
@@ -66,7 +66,9 @@ $$
 (R^TR+\lambda I)x &= R^TQ^Tb\\
 x &= (R^TR+\lambda I)^{-1}A^Tb 
 \end{split}\end{equation}
-$$
+$$ -->
+
+![l2_lls_qr](./imgs/l2_lls_qr.png)
 
 * regularized (L1) least square (maybe), has problem with subgradient calculation, related [discussion](https://stsievert.com/blog/2015/12/09/inverse-part-2/)
 
