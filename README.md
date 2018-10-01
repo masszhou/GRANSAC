@@ -10,7 +10,7 @@
   
 To avoid calculate $A^TA$ to increase condition number, here householder QR decomposition (from eigen3) was used.
 
-$$\min_{x}\|Ax-b\|^2 $$
+<!-- $$\min_{x}\|Ax-b\|^2 $$
 
 $$
 \begin{equation}
@@ -24,7 +24,7 @@ $$
 
 $$\min_{x}\|Ax-b\|^2 \Rightarrow \min \|R_{diag}x-Q_1^Tb\|^2$$
 
-finally we have $ x = R_{diag}^{-1}Q_1^Tb$, where $Q_1,R_{diag}$ are from thin QR decomposition.
+finally we have $ x = R_{diag}^{-1}Q_1^Tb$, where $Q_1,R_{diag}$ are from thin QR decomposition. -->
 
 
 <!-- 
@@ -45,6 +45,9 @@ $$
        &= (R^TR)^{-1}A^Tb 
 \end{split}\end{equation}
 $$ -->
+
+![lls_qr](./imgs/lls_qr.png)
+
 
 * add quadratic model (done). 
   (_green dots are inliner, red dots are curve definition points, empty dots are outliers, legends are the same for all figures_)
