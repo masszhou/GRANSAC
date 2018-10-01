@@ -35,6 +35,7 @@ public:
     virtual std::pair<float, std::vector<std::shared_ptr<AbstractParameter>>> evaluate(const std::vector<std::shared_ptr<AbstractParameter>> &evaluate_params, float threshold) = 0;
 
     virtual std::vector<std::shared_ptr<AbstractParameter> > getModelDefParams(void) { return m_model_def_parameters; };
+    virtual std::vector<float> getModelCoefficients(void) { return m_model_params; };
 };
 
 

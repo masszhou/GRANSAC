@@ -116,14 +116,6 @@ int main(int argc, char *argv[])
             cv::circle(img_canvas, pt, floor(side / 100), cv::Scalar(0, 0, 255), -1, cv::LINE_AA);
         }
 
-        GRANSAC::LinearLeastSquaresModel<4>::polyfit(x_values, y_values, coeff, param_num-1);
-        cout << "original  coefficients: a0=2100, a1=-20, a2=0.05" << endl;
-        cout << "estimated coefficients: " ;
-        for (int i=0; i < coeff.size(); i++){
-            cout << "a" << i << " = " << coeff[i] << ", ";
-        }
-        cout << endl;
-
         // draw polynomial line
         float start_point_x = 0;
         float end_point_x = side;
@@ -131,8 +123,8 @@ int main(int argc, char *argv[])
         //Define the curve through equation. In this example, a simple parabola
         for (float x = start_point_x; x <= end_point_x; x+=1){
             float y = 0;
-            for (int j = 0; j < coeff.size(); j++){
-                y += coeff[j]*std::pow(x, float(j));
+            for (int j = 0; j < best_line->getModelCoefficients().size(); j++){
+                y += best_line->getModelCoefficients()[j]*std::pow(x, float(j));
             } 
 
             cv::Point2f new_point = cv::Point2f(x, y);                  //resized to better visualize

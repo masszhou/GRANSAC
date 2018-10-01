@@ -81,6 +81,9 @@ public:
 			y_values.push_back(point->m_point2D[1]);
 		}
 		polyfit(x_values, y_values, coeff, t_param_num-1);
+
+		std::vector<float> coeff_f(coeff.begin(), coeff.end());
+		AbstractModel<t_param_num>::m_model_params = coeff_f;
 		
 		m_occupied_list.reserve(grid_num_x*grid_num_y/2);
 		//e.g. img_size=400x400, grid_size=40x40, cell_size=10x10
