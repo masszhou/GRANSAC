@@ -47,7 +47,8 @@ $$
 $$ -->
 
 ![lls_qr](./imgs/lls_qr.png)
-
+![thin_qr](./imgs/thin_qr.png)
+**[img source](http://www.cnblogs.com/daniel-D/p/3208534.html)**
 
 * add quadratic model (done). 
   (_green dots are inliner, red dots are curve definition points, empty dots are outliers, legends are the same for all figures_)
