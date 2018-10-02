@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     std::mt19937 RNG = std::mt19937(seed_device());
 
     std::uniform_int_distribution<int> uni_dist(0, side - 1); // [Incl, Incl]
-    int perturb = 25;
+    int perturb = 40;
     std::normal_distribution<float> perturb_dist(0, perturb);
 
     std::vector<std::shared_ptr<GRANSAC::AbstractParameter>> cand_points;
@@ -45,7 +45,11 @@ int main(int argc, char *argv[])
         int diag = uni_dist(RNG);
         double x = diag + perturb_dist(RNG);
         // y = 2100-20x+0.05*x*x
-        double y = 2100 - 20 * x + 0.05 * x * x + perturb_dist(RNG);
+        double y;
+        if (n_points > 5 )
+            y = 2100 - 20 * x + 0.05 * x * x + perturb_dist(RNG);
+        else
+            y = uni_dist(RNG);
 
         if (x<=side && x > 0 && y<=side && y > 0){
             cv::Point pt(floor(x), floor(y));
@@ -107,6 +111,12 @@ int main(int argc, char *argv[])
     auto best_line = estimator.getBestModel();
     if (best_line)
     {
+        cout << "coefficients are : " << endl;
+        for (auto each : best_line->getModelCoefficients()){
+            cout << each << ", ";
+        }
+        cout << endl;
+
         std::vector<double> x_values, y_values, coeff;
         for (int i=0; i<best_line->getModelDefParams().size(); i++){
             auto best_line_pt = std::dynamic_pointer_cast<GRANSAC::Point2D>(best_line->getModelDefParams()[i]);
@@ -138,7 +148,6 @@ int main(int argc, char *argv[])
     while (true)
     {
         cv::imshow("RANSAC Example", img_canvas);
-
         char Key = cv::waitKey(1);
         if (Key == 27)
             return 0;
