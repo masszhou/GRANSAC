@@ -8,7 +8,7 @@
 # 1. My Works
 * this projects dependents on eigen3 for fitting Ax=b.
   
-To avoid calculate $A^TA$ to increase condition number, here householder QR decomposition (from eigen3) was used.
+To avoid calculate $A^TA$ to increase condition number, here householder QR decomposition (from eigen3) was used. note, lls with QR decomposition is slightly slower than normal lls in eigen3. The advantange is only with smaller float error.
 
 <!-- $$\min_{x}\|Ax-b\|^2 $$
 
@@ -45,9 +45,9 @@ finally we have $ x = R_1^{-1}Q_1^Tb$, where $Q_1,R_1$ are from thin QR decompos
 
 ![lls fitting example](./examples/lls_fitting.png)
 
-* regularized (L2) least square (working), [discussion](https://math.stackexchange.com/questions/2013160/qr-factorization-regularized-least-squares)
-
-<!-- $$\min_{x}\|Ax-b\|_2^2 + \lambda \|x\|_2^2$$
+* regularized (L2) least square (working on), here I use normal lls instead of QR decomposition, because adding regularization term broke buildin solver in eigen3 (according to my currrent understanding of eigen3 lib), which is very time expensive for matrix allocation.
+<!-- 
+$$\min_{x}\|Ax-b\|_2^2 + \lambda \|x\|_2^2$$
 
 $$
 \begin{equation}
@@ -61,11 +61,10 @@ $$
 \begin{equation}
 \begin{split}
 (A^TA+\lambda I)x  &= A^Tb\\
-(R^TQ^TQR+\lambda I)x&= R^TQ^Tb\\
-(R^TR+\lambda I)x &= R^TQ^Tb\\
-x &= (R^TR+\lambda I)^{-1}A^Tb 
+x &= (A^TA+\lambda I)^{-1}A^Tb 
 \end{split}\end{equation}
-$$ -->
+$$ 
+-->
 
 ![l2_lls_qr](./imgs/l2_lls_qr.png)
 
@@ -83,7 +82,7 @@ $$
 $$
 
 
-* polish codes (working)
+* polish codes (working on)
 * GPU support (maybe)
 * add SVD for least squares (maybe)
 
