@@ -1,11 +1,11 @@
 # Table of Content
 - [Table of Content](#table-of-content)
-- [1. My Changes](#1-my-changes)
+- [1. My Works](#1-my-works)
 - [2. How to Use](#2-how-to-use)
 - [3. Contact](#3-contact)
 - [4. Information about original repository](#4-information-about-original-repository)
 
-# 1. My Changes
+# 1. My Works
 * this projects dependents on eigen3 for fitting Ax=b.
   
 To avoid calculate $A^TA$ to increase condition number, here householder QR decomposition (from eigen3) was used.
@@ -52,8 +52,7 @@ finally we have $ x = R_1^{-1}Q_1^Tb$, where $Q_1,R_1$ are from thin QR decompos
 $$
 \begin{equation}
 \begin{split}
-(Ax-b)^T(Ax-b) + \lambda x^tx   &=(x^TA^T-b^T)(Ax-b) + \lambda x^tx \\
-(\text{take derivative}) &=x^T A^TAx - x^TA^Tb -b^T Ax + b^Tb + 2\lambda x\\
+\frac{d((Ax-b)^T(Ax-b) + \lambda x^Tx)}{dx} &=x^T A^TAx - x^TA^Tb -b^T Ax + b^Tb + 2\lambda x\\
                          &=2A^TAx-2A^Tb + 2\lambda x = 0\\
 \end{split}\end{equation}
 $$
@@ -101,13 +100,12 @@ $ make
 * API, see examples
 
 # 3. Contact
-Autonomous Driving / Machine Learning Engineer
-
-Author, Zhiliang Zhou, [Linkedin](https://www.linkedin.com/in/zhiliang-zhou/)
+* Content after commit a0ce704
+* Author, Zhiliang Zhou, Autonomous Driving / Machine Learning Engineer. [Linkedin](https://www.linkedin.com/in/zhiliang-zhou/)
 
 
 ---
 # 4. Information about original repository
-GRANSAC: Multi-threaded generic RANSAC implemetation
-
-Author, Srinath Sridhar (srinaths@umich.edu), Max Planck Institute for Informatics
+* Content before commit a0ce704, including a0ce704
+* project GRANSAC: Multi-threaded generic RANSAC implemetation
+* Author, Srinath Sridhar (srinaths@umich.edu), Max Planck Institute for Informatics
