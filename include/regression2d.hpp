@@ -62,7 +62,7 @@ public:
 			coeff[i] = result[i];
 	}
 
-	static void calculateL2RegularizedLinearSquares(const std::vector<float> &xv, const std::vector<float> &yv, std::vector<float> &coeff, int order)
+	static void calculateL2RegularizedLinearSquares(const std::vector<float> &xv, const std::vector<float> &yv, std::vector<float> &coeff, int order, float r_term=0.0f)
     {
         // faster but with larger condition number compared with QR method
 		Eigen::MatrixXf A(xv.size(), order+1);
@@ -78,7 +78,7 @@ public:
 			A(i, j) = pow(xv.at(i), j);
 
 		// solve for linear least squares fit
-		result = (A.transpose() * A).ldlt().solve(A.transpose() * yv_mapped);
+		result = (A.transpose() * A + r_term * Eigen::MatrixXf::Identity(A.cols(), A.cols())).ldlt().solve(A.transpose() * yv_mapped);
 
 		coeff.resize(order+1);
 		for (size_t i = 0; i < order+1; i++)
