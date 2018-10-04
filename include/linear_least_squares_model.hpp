@@ -1,13 +1,15 @@
 #ifndef LINEAR_LEAST_SQUARE_MODEL_HPP
 #define LINEAR_LEAST_SQUARE_MODEL_HPP
 
-#include "AbstractModel.hpp"
-#include "basic_types.hpp"
+#include <iostream>
+
 #include <math.h>
 #include <Eigen/QR>
 #include <Eigen/Dense>
 
-#include <iostream>
+
+#include "basic_types.hpp"
+
 
 namespace GRANSAC
 {

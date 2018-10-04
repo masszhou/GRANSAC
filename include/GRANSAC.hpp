@@ -10,7 +10,7 @@
 #include <map>
 #include <omp.h>
 
-#include "AbstractModel.hpp"
+#include "basic_types.hpp"
 
 namespace GRANSAC
 {

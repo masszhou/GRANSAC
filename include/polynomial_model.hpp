@@ -1,12 +1,12 @@
 #ifndef POLYNOMIAL_MODEL_HPP
 #define POLYNOMIAL_MODEL_HPP
 
-#include "AbstractModel.hpp"
-#include "basic_types.hpp"
 #include <math.h>
 #include <Eigen/QR>
 
 #include <iostream>
+
+#include "basic_types.hpp"
 
 namespace GRANSAC
 {
