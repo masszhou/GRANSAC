@@ -43,9 +43,9 @@ int main(int argc, char *argv[])
     std::vector<std::shared_ptr<GRANSAC::AbstractParameter>> cand_points;
     while (n_points > 0){
         int diag = uni_dist(RNG);
-        double x = diag + perturb_dist(RNG);
+        float x = diag + perturb_dist(RNG);
         // y = 2100-20x+0.05*x*x
-        double y = 2100 - 20 * x + 0.05 * x * x + perturb_dist(RNG);
+        float y = 2100 - 20 * x + 0.05 * x * x + perturb_dist(RNG);
 
         if (x<=side && x > 0 && y<=side && y > 0){
             cv::Point pt(floor(x), floor(y));
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     std::map<string, float> additional_params = {{"img_width", float(side)}, {"img_height", float(side)}, {"grid_num_x", float(side/10)}, {"grid_num_y", float(side/10)}};
     //draw grid
     cv::Mat img_overlay;
-    double alpha = 0.3;
+    float alpha = 0.3;
     img_canvas.copyTo(img_overlay);
     for (int i=0; i < side/10; i++){
         cv::Point pt_1(i*10, 0);

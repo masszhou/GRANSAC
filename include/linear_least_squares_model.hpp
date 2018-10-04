@@ -74,7 +74,7 @@ public:
 		AbstractModel<t_param_num>::m_model_def_parameters = input_data;
 
 		// compute deterministic curve parameters with 3 points
-		std::vector<double> x_values, y_values, coeff;
+		std::vector<float> x_values, y_values, coeff;
 		for (int i=0; i< input_data.size(); i++){
 			auto point = std::dynamic_pointer_cast<Point2D>(input_data[i]);
 			if (point == nullptr)

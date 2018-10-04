@@ -43,9 +43,9 @@ int main(int argc, char *argv[])
     std::vector<std::shared_ptr<GRANSAC::AbstractParameter>> cand_points;
     while (n_points > 0){
         int diag = uni_dist(RNG);
-        double x = diag + perturb_dist(RNG);
+        float x = diag + perturb_dist(RNG);
         // y = 2100-20x+0.05*x*x
-        double y;
+        float y;
         if (n_points > 5 )
             y = 2100 - 20 * x + 0.05 * x * x + perturb_dist(RNG);
         else
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
     //draw grid
     cv::Mat img_overlay;
-    double alpha = 0.3;
+    float alpha = 0.3;
     img_canvas.copyTo(img_overlay);
     for (int i=0; i < side/10; i++){
         cv::Point pt_1(i*10, 0);
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
         }
         cout << endl;
 
-        std::vector<double> x_values, y_values, coeff;
+        std::vector<float> x_values, y_values, coeff;
         for (int i=0; i<best_line->getModelDefParams().size(); i++){
             auto best_line_pt = std::dynamic_pointer_cast<GRANSAC::Point2D>(best_line->getModelDefParams()[i]);
             x_values.push_back(best_line_pt->m_point2D[0]); //x
