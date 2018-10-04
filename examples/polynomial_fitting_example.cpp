@@ -5,7 +5,7 @@
 #include <limits>
 
 #include "GRANSAC.hpp"
-#include "linear_least_squares_model.hpp"
+#include "least_squares_model.hpp"
 
 #include <vector>
 #include <Eigen/QR>
