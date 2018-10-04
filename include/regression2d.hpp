@@ -17,7 +17,7 @@ class Regression2D
 {
 public:
 
-	static void calculateLinearSquaresWithQR(const std::vector<float> &xv, const std::vector<float> &yv, std::vector<float> &coeff, int order)
+	static void calculateLLS_QR(const std::vector<float> &xv, const std::vector<float> &yv, std::vector<float> &coeff, int order)
     {
 		Eigen::MatrixXf A(xv.size(), order+1);
 		Eigen::VectorXf yv_mapped = Eigen::VectorXf::Map(&yv.front(), yv.size());
@@ -39,7 +39,7 @@ public:
 			coeff[i] = result[i];
 	}
 
-    static void calculateLinearSquaresNormal(const std::vector<float> &xv, const std::vector<float> &yv, std::vector<float> &coeff, int order)
+    static void calculateLLS(const std::vector<float> &xv, const std::vector<float> &yv, std::vector<float> &coeff, int order)
     {
         // faster but with larger condition number compared with QR method
 		Eigen::MatrixXf A(xv.size(), order+1);
@@ -62,7 +62,7 @@ public:
 			coeff[i] = result[i];
 	}
 
-	static void calculateL2RegularizedLinearSquares(const std::vector<float> &xv, const std::vector<float> &yv, std::vector<float> &coeff, int order, float r_term=0.0f)
+	static void calculateLLS_L2(const std::vector<float> &xv, const std::vector<float> &yv, std::vector<float> &coeff, int order, float r_term=0.0f)
     {
         // faster but with larger condition number compared with QR method
 		Eigen::MatrixXf A(xv.size(), order+1);
