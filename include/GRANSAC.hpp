@@ -90,7 +90,8 @@ public:
 		int sample_num = t_num_params; // deterministic sample
 		if ( m_additional_params.count("sample_number") == 1 ) {
 			// found
-			sample_num = m_additional_params.at("sample_number"); // over-deterministic sample. under-deterministic sample not suppported yet.
+			if (m_additional_params.at("sample_number") >= sample_num)
+				sample_num = m_additional_params.at("sample_number"); // over-deterministic sample. under-deterministic sample not suppported yet.
 		}
 
 

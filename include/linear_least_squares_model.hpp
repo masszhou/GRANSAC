@@ -7,8 +7,8 @@
 #include <Eigen/QR>
 #include <Eigen/Dense>
 
-
 #include "basic_types.hpp"
+#include "regression2d.hpp"
 
 
 namespace GRANSAC
@@ -83,10 +83,10 @@ public:
 			x_values.push_back(point->m_point2D[0]);
 			y_values.push_back(point->m_point2D[1]);
 		}
-		polyfit(x_values, y_values, coeff, t_param_num-1);
+		Regression2D::calculateLinearSquaresWithQR(x_values, y_values, coeff, t_param_num-1);
 
 		std::vector<float> coeff_f(coeff.begin(), coeff.end());
-		AbstractModel<t_param_num>::m_model_params = coeff_f;
+		AbstractModel<t_param_num>::m_model_coeffs = coeff_f;
 		
 		m_occupied_list.reserve(grid_num_x*grid_num_y/2);
 		//e.g. img_size=400x400, grid_size=40x40, cell_size=10x10
@@ -147,56 +147,9 @@ public:
 				n_inliers++;
 			}
 		}
-
 		float inlier_fraction = float(n_inliers) / float(n_total_data); // This is the inlier fraction
-
 		return std::make_pair(inlier_fraction, inliers);
 	};
-
-
-	static void polyfit(const std::vector<double> &xv, const std::vector<double> &yv, std::vector<double> &coeff, int order)
-	{
-		Eigen::MatrixXd A(xv.size(), order+1);
-		Eigen::VectorXd yv_mapped = Eigen::VectorXd::Map(&yv.front(), yv.size());
-		Eigen::VectorXd result;
-
-		assert(xv.size() == yv.size());
-		assert(xv.size() >= order+1);
-
-		// create matrix
-		for (size_t i = 0; i < xv.size(); i++)
-		for (size_t j = 0; j < order+1; j++)
-			A(i, j) = pow(xv.at(i), j);
-
-		// solve for linear least squares fit
-		result = A.householderQr().solve(yv_mapped);
-
-		coeff.resize(order+1);
-		for (size_t i = 0; i < order+1; i++)
-			coeff[i] = result[i];
-	}
-
-	// static void polyfit(const std::vector<double> &xv, const std::vector<double> &yv, std::vector<double> &coeff, int order, float r_term=0.0f)
-	// {
-	// 	Eigen::MatrixXd A(xv.size(), order+1);
-	// 	Eigen::VectorXd yv_mapped = Eigen::VectorXd::Map(&yv.front(), yv.size());
-	// 	Eigen::VectorXd result;
-
-	// 	assert(xv.size() == yv.size());
-	// 	assert(xv.size() >= order+1);
-
-	// 	// create matrix
-	// 	for (size_t i = 0; i < xv.size(); i++)
-	// 	for (size_t j = 0; j < order+1; j++)
-	// 		A(i, j) = pow(xv.at(i), j);
-
-	// 	// solve for linear least squares fit
-	// 	result = (A.transpose() * A + 1.0 * Eigen::MatrixXd::Identity(A.cols(), A.cols()) ).ldlt().solve(A.transpose() * yv_mapped);
-
-	// 	coeff.resize(order+1);
-	// 	for (size_t i = 0; i < order+1; i++)
-	// 		coeff[i] = result[i];
-	// }
 
 };
 

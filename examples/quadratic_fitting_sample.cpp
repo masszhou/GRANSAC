@@ -5,7 +5,7 @@
 #include <limits>
 
 #include "GRANSAC.hpp"
-#include "quadratic_model.hpp"
+#include "linear_least_squares_model.hpp"
 
 #include <vector>
 #include <Eigen/QR>
@@ -74,7 +74,8 @@ int main(int argc, char *argv[])
     }
     cv::addWeighted(img_overlay, alpha, img_canvas, 1 - alpha, 0, img_canvas);
     
-    GRANSAC::RANSAC<GRANSAC::QuadraticModel, 3> estimator;
+    // default sample number is the same with parameters number
+    GRANSAC::RANSAC<GRANSAC::LinearLeastSquaresModel<3>, 3> estimator;
     estimator.initialize(1, 100, additional_params); // Threshold, iterations, the threshold is p-1 distance on grid, 1 means 1 grid cell distance
 
     float time_average = 0;
@@ -102,15 +103,13 @@ int main(int argc, char *argv[])
     auto best_line = estimator.getBestModel();
     if (best_line)
     {
-        std::vector<double> x_values, y_values, coeff;
+        std::vector<float> coeff;
+        coeff = best_line->getModelCoefficients();
         for (int i=0; i<3; i++){
             auto best_line_pt = std::dynamic_pointer_cast<GRANSAC::Point2D>(best_line->getModelDefParams()[i]);
-            x_values.push_back(best_line_pt->m_point2D[0]); //x
-            y_values.push_back(best_line_pt->m_point2D[1]); //x
             cv::Point pt(floor(best_line_pt->m_point2D[0]), floor(best_line_pt->m_point2D[1]));
             cv::circle(img_canvas, pt, floor(side / 100), cv::Scalar(0, 0, 255), -1, cv::LINE_AA);
         }
-        GRANSAC::QuadraticModel::polyfit(x_values, y_values, coeff, 2);
 
         cout << "original  coefficients: a0=2100, a1=-20, a2=0.05" << endl;
         cout << "estimated coefficients: a0="<<coeff[0]<<", a1="<<coeff[1]<<", a2="<<coeff[2]<<endl;

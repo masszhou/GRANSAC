@@ -5,7 +5,7 @@
 #include <limits>
 
 #include "GRANSAC.hpp"
-#include "polynomial_model.hpp"
+#include "linear_least_squares_model.hpp"
 
 #include <vector>
 #include <Eigen/QR>
@@ -76,7 +76,8 @@ int main(int argc, char *argv[])
     
     // estimate parameters with RANSAC
     int param_num = 4; // 3rd order
-    GRANSAC::RANSAC<GRANSAC::PolynomialModel<4>, 4> estimator;
+    // default sample number is the same with parameters number
+    GRANSAC::RANSAC<GRANSAC::LinearLeastSquaresModel<4>, 4> estimator;
     estimator.initialize(1, 100, additional_params); // Threshold, iterations, the threshold is p-1 distance on grid, 1 means 1 grid cell distance
 
     float time_average = 0;
@@ -105,16 +106,13 @@ int main(int argc, char *argv[])
     auto best_line = estimator.getBestModel();
     if (best_line)
     {
-        std::vector<double> x_values, y_values, coeff;
         for (int i=0; i<best_line->getModelDefParams().size(); i++){
             auto best_line_pt = std::dynamic_pointer_cast<GRANSAC::Point2D>(best_line->getModelDefParams()[i]);
-            x_values.push_back(best_line_pt->m_point2D[0]); //x
-            y_values.push_back(best_line_pt->m_point2D[1]); //x
             cv::Point pt(floor(best_line_pt->m_point2D[0]), floor(best_line_pt->m_point2D[1]));
             cv::circle(img_canvas, pt, floor(side / 100), cv::Scalar(0, 0, 255), -1, cv::LINE_AA);
         }
-
-        GRANSAC::PolynomialModel<4>::polyfit(x_values, y_values, coeff, param_num-1);
+        std::vector<float> coeff = best_line->getModelCoefficients();
+        
         cout << "original  coefficients: a0=2100, a1=-20, a2=0.05" << endl;
         cout << "estimated coefficients: " ;
         for (int i=0; i < coeff.size(); i++){
