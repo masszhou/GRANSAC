@@ -81,6 +81,7 @@ $$
 \end{split}\end{equation}
 $$
 
+* constrained least squares (working on)
 
 * polish codes (working on)
 * GPU support (maybe)
