@@ -82,9 +82,11 @@ $$
 $$
 
 * constrained least squares (working on)
+    * I reformulated this problem as a standard quadratic programming (QP), then use CppAD and ipopt to solve this QP.
+    * need to test performance.
 
 * polish codes (working on)
-* GPU support (maybe)
+* GPU support (maybe or not ...)
 * add SVD for least squares (maybe)
 
 
